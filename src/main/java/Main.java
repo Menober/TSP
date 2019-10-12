@@ -1,18 +1,21 @@
 import io.DataReader;
 import io.RaportGenerator;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class Main {
     static String[] filesNames = {"berlin11_modified.tsp", "berlin52.tsp", "kroA100.tsp", "kroA150.tsp", "kroA200.tsp", "fl417.tsp", "ali535.tsp", "gr666.tsp", "nrw1379.tsp", "pr2392.tsp"};
+    static String[] filesNamesTest = {"berlin11_modified.tsp"};
     static String[] filesNamesEasy = {"berlin11_modified.tsp", "berlin52.tsp"};
     static String[] filesNamesMedium = {"kroA100.tsp", "kroA150.tsp", "kroA200.tsp"};
     static String[] filesNamesHard = {"fl417.tsp", "ali535.tsp", "gr666.tsp"};
-    static int[] populationSizes = {10, 50, 100};
-    static int[] generations = {100, 1000};
+    static int[] populationSizes = {100, 500, 1000};
+    static int[] generations = {1000, 2000};
+    static double[] crossoverRates = {35.0, 70.0, 100.0}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static double[] mutationRates = {3, 10, 15, 30}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static int[] amountsOfChamps = {3, 5, 10};
 
     public static void main(String[] args) throws IOException {
         Date startDate = new Date();
@@ -25,24 +28,34 @@ public class Main {
                 Double[][] matrix = new Double[dimension][dimension];
                 parseCitiesToMatrix(cities, matrix);
                 for (int generationsCount : generations) {
-                    System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount);
-                    String outputData = "";
+                    for (double crossoverRate : crossoverRates) {
+                        for (double mutationRate : mutationRates) {
+                            for (int amountOfChamps : amountsOfChamps) {
+                                System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount + " Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
+                                String outputData = "";
 
-                    Population population = Population.generateNewRandomPopulation(populationSize, dimension);
-                    calculateIndividualsFitness(population, matrix);
+                                Population population = Population.generateNewRandomPopulation(populationSize, dimension);
+                                calculateIndividualsFitness(population, matrix);
 
-                    outputData += prepareCurrentPopulationData(population);
-                    for (int i = 0; i < generationsCount; i++) {
-                        population.bumpGenerationNumber();
-                        // population.selection();
-                        // population.crossover();
-                        // population.mutation();
-                        calculateIndividualsFitness(population, matrix);
+                                outputData += prepareCurrentPopulationData(population);
+                                for (int i = 0; i < generationsCount; i++) {
+                                    population.bumpGenerationNumber();
+                                    Population newPopulation = Population.generateNewEmptyPopulation(population.getPopulationSize(), population.getGeneration());
 
-                        outputData += prepareCurrentPopulationData(population);
+                                    newPopulation.crossover(population, crossoverRate, amountOfChamps);
+                                    newPopulation.mutation(mutationRate);
+                                    calculateIndividualsFitness(newPopulation, matrix);
+
+                                    population = newPopulation;
+                                    Individual test = population.getBestIndividual();
+                                    outputData += prepareCurrentPopulationData(population);
+                                }
+                                System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
+                                RaportGenerator raport = new RaportGenerator();
+                                raport.generateRaport(file.split("\\.")[0] + "-POP" + populationSize + "-GENS" + generationsCount + "-PX" + crossoverRate + "-PM" + mutationRate + "-CHAMPS" + amountOfChamps, outputData);
+                            }
+                        }
                     }
-                    RaportGenerator raport = new RaportGenerator();
-                    raport.generateRaport(file.split("\\.")[0] + "-POP" + populationSize + "-GENS" + generationsCount, outputData);
                 }
 
             }
@@ -76,6 +89,7 @@ public class Main {
         for (int i = 0; i < c.getCitiesIds().length - 1; i++) {
             distance += matrix[c.getCitiesIds()[i]][c.getCitiesIds()[i + 1]];
         }
+        distance += matrix[c.getCitiesIds()[c.getCitiesIds().length - 1]][c.getCitiesIds()[0]];
         return distance;
     }
 
@@ -89,7 +103,7 @@ public class Main {
     }
 
 
-    private static void parseCitiesToMatrix(ArrayList<String> berlin11, Double[][] matrix) {
+    public static void parseCitiesToMatrix(ArrayList<String> berlin11, Double[][] matrix) {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix.length; j++) {
                 matrix[i][j] = calculateDistance(berlin11, i, j);

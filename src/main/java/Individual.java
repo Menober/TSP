@@ -58,13 +58,38 @@ public class Individual {
 
     public void swapRandomCities() {
         Random r = new Random();
-        int cityOne = r.nextInt(citiesIds.length);
-        int cityTwo = r.nextInt(citiesIds.length);
+        int cityOne = r.nextInt(citiesIds.length - 1);
+        int cityTwo = r.nextInt(citiesIds.length - 1);
         while (cityOne == cityTwo) {
-            cityTwo = r.nextInt(citiesIds.length);
+            cityTwo = r.nextInt(citiesIds.length - 1);
         }
         int tempValue = citiesIds[cityOne];
-        citiesIds[cityOne]=citiesIds[cityTwo];
-        citiesIds[cityTwo]=tempValue;
+        citiesIds[cityOne] = citiesIds[cityTwo];
+        citiesIds[cityTwo] = tempValue;
+    }
+
+    public Individual copy() {
+        Individual newIndividual = new Individual(this.citiesIds.length);
+        newIndividual.setFitness(fitness);
+        newIndividual.setCitiesIds(citiesIds.clone());
+        return newIndividual;
+    }
+
+    public void mutate(double pm) {
+        for (int i = 0; i < citiesIds.length; i++) {
+            if (Utils.randomInt(0, 100000) <= pm * 1000) {
+                swapCityWithRandomCity(i);
+            }
+        }
+    }
+
+    private void swapCityWithRandomCity(int index) {
+        int randomCity = Utils.randomInt(0, citiesIds.length - 1);
+        while (citiesIds[randomCity] == citiesIds[index]) {
+            randomCity = Utils.randomInt(0, citiesIds.length - 1);
+        }
+        int tempValue = citiesIds[randomCity];
+        citiesIds[randomCity] = citiesIds[index];
+        citiesIds[index] = tempValue;
     }
 }

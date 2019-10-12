@@ -11,11 +11,22 @@ public class Population {
         generation = 0;
     }
 
+    public static Population generateNewEmptyPopulation(int size, int generation) {
+        Population population = new Population();
+        population.populationSize = size;
+        population.generation = generation;
+        return population;
+    }
+
     public static Population generateNewRandomPopulation(int size, int dimension) {
         Population population = new Population();
         population.populationSize = size;
         population.createRandomPopulation(size, dimension);
         return population;
+    }
+
+    public boolean isPopulationFilled() {
+        return population.size() == populationSize;
     }
 
     public void bumpGenerationNumber() {
@@ -32,9 +43,9 @@ public class Population {
 
     Individual getBestIndividual() {
         Individual bestIndividual = null;
-        Double bestFitness = Double.MIN_VALUE;
+        Double bestFitness = Double.MAX_VALUE;
         for (Individual d : population) {
-            if (d.getFitness() > bestFitness) {
+            if (d.getFitness() < bestFitness) {
                 bestFitness = d.getFitness();
                 bestIndividual = d;
             }
@@ -44,9 +55,9 @@ public class Population {
 
     Individual getWorstIndividual() {
         Individual worstIndividual = null;
-        Double worstFitness = Double.MAX_VALUE;
+        Double worstFitness = Double.MIN_VALUE;
         for (Individual d : population) {
-            if (d.getFitness() < worstFitness) {
+            if (d.getFitness() > worstFitness) {
                 worstFitness = d.getFitness();
                 worstIndividual = d;
             }
@@ -92,5 +103,60 @@ public class Population {
 
     public int getPopulationSize() {
         return populationSize;
+    }
+
+    private Individual selection(int amountOfChamps) {
+        Individual best = population.get(Utils.randomInt(0, population.size() - 1));
+        for (int i = 0; i < amountOfChamps; i++) {
+            Individual randomRival = population.get(Utils.randomInt(0, population.size() - 1));
+            if (randomRival.getFitness() < best.getFitness()) {
+                best = randomRival;
+            }
+        }
+
+        return best;
+    }
+
+    public void crossover(Population population, double px, int amountOfChamps) {
+        while (!isPopulationFilled()) {
+            Individual parentA = population.selection(amountOfChamps);
+            Individual parentB = population.selection(amountOfChamps);
+            Individual childA = parentA.copy();
+            Individual childB = parentB.copy();
+            if (Utils.randomInt(0, 100000) <= px * 1000) {
+                PMX(parentA, parentB, childA);
+                PMX(parentB, parentA, childB);
+            }
+            this.population.add(childA);
+            this.population.add(childB);
+        }
+    }
+
+    private void PMX(Individual parentA, Individual parentB, Individual childA) {
+        int indexOfCut = Utils.randomInt(0, parentA.getCitiesIds().length - 1);
+        for (int i = 0; i < indexOfCut; i++) {
+            int index = findIndex(parentA.getCitiesIds(), parentB.getCitiesIds()[i]);
+            swap(i, index, childA);
+        }
+    }
+
+    public static void swap(int i, int index, Individual childA) {
+        int tmp = childA.getCitiesIds()[i];
+        childA.getCitiesIds()[i] = childA.getCitiesIds()[index];
+        childA.getCitiesIds()[index] = tmp;
+    }
+
+    public static int findIndex(int[] citiesIds, int cityId) {
+        for (int i = 0; i < citiesIds.length; i++) {
+            if (citiesIds[i] == cityId)
+                return i;
+        }
+        return -1;
+    }
+
+    public void mutation(double pm) {
+        for (Individual c : population) {
+            c.mutate(pm);
+        }
     }
 }
