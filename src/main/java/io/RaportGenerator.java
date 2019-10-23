@@ -8,6 +8,7 @@ public class RaportGenerator {
     public void generateRaport(String raportName, String data) throws IOException {
         FileWriter fileWriter = new FileWriter("output/" + raportName + ".csv");
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        bufferedWriter.write("Number,Best,Worst,Average\n");
         bufferedWriter.write(data);
         bufferedWriter.close();
     }

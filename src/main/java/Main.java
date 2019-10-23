@@ -16,82 +16,90 @@ public class Main {
     static String[] kroA100 = {"kroA100.tsp"};
     static String[] kroA150 = {"kroA150.tsp"};
     static String[] kroA200 = {"kroA200.tsp"};
+    static String[] fl417 = {"fl417.tsp"};
+    static String[] ali535 = {"ali535.tsp"};
+    static String[] gr666 = {"gr666.tsp"};
     static String[] filesNamesHard = {"fl417.tsp", "ali535.tsp", "gr666.tsp"};
     static int[] populationSizes = {100};
-    static int[] generations = {500};
+    static int[] generations = {1000};
     static double[] crossoverRates = {95.0}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
     static double[] mutationRates = {0.005}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
     static int[] amountsOfChamps = {5};
-    static String raportPrefix = "dev/dev-";
+    static String directory = "measuring/";
+    static String raportPrefix = "MUT-";
     static Selection selectionType = Selection.TOURNAMENT;
-    static Crossover crossoverType = Crossover.OX;
+    static Crossover crossoverType = Crossover.PMX;
     static Mutation mutationType = Mutation.SWAP;
 
     public static void main(String[] args) throws IOException {
         Date startDate = new Date();
+        for (int counter = 0; counter < 1; counter++) {
+            for (String file : kroA100) {
+                for (int populationSize : populationSizes) {
+                    DataReader dataReader = new DataReader();
+                    ArrayList<String> cities = dataReader.getCities(dataReader.readFile(file));
+                    int dimension = cities.size();
+                    Double[][] matrix = new Double[dimension][dimension];
+                    parseCitiesToMatrix(cities, matrix);
+                    for (int generationsCount : generations) {
+                        if (generationsCount % 500 == 0) {
+                            System.out.println(generationsCount);
+                        }
+                        for (double crossoverRate : crossoverRates) {
+                            for (double mutationRate : mutationRates) {
+                                for (int amountOfChamps : amountsOfChamps) {
+                                    System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount + " enums.Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
+                                    String outputData = "";
 
-        for (String file : filesNamesTest) {
-            for (int populationSize : populationSizes) {
-                DataReader dataReader = new DataReader();
-                ArrayList<String> cities = dataReader.getCities(dataReader.readFile(file));
-                int dimension = cities.size();
-                Double[][] matrix = new Double[dimension][dimension];
-                parseCitiesToMatrix(cities, matrix);
-                for (int generationsCount : generations) {
-                    if (generationsCount % 500 == 0) {
-                        System.out.println(generationsCount);
-                    }
-                    for (double crossoverRate : crossoverRates) {
-                        for (double mutationRate : mutationRates) {
-                            for (int amountOfChamps : amountsOfChamps) {
-                                System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount + " enums.Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
-                                String outputData = "";
+                                    Population population = Population.generateNewRandomPopulation(populationSize, dimension);
+                                    calculateIndividualsFitness(population, matrix);
 
-                                Population population = Population.generateNewRandomPopulation(populationSize, dimension);
-                                calculateIndividualsFitness(population, matrix);
+                                    outputData += prepareCurrentPopulationData(population);
+                                    for (int i = 0; i < generationsCount; i++) {
+                                        population.bumpGenerationNumber();
+                                        Population newPopulation = Population.generateNewEmptyPopulation(population.getPopulationSize(), population.getGeneration());
 
-                                outputData += prepareCurrentPopulationData(population);
-                                for (int i = 0; i < generationsCount; i++) {
-                                    population.bumpGenerationNumber();
-                                    Population newPopulation = Population.generateNewEmptyPopulation(population.getPopulationSize(), population.getGeneration());
-
-                                    newPopulation.crossover(population, crossoverRate, amountOfChamps);
+                                        newPopulation.crossover(population, crossoverRate, amountOfChamps);
+                                        newPopulation.mutation(mutationRate);
 //                                    if (i % 400 == 0) {
 //                                        newPopulation.mutation(mutationRate * 200);
 //                                    } else {
 //                                        newPopulation.mutation(mutationRate);
 //                                    }
-                                    calculateIndividualsFitness(newPopulation, matrix);
+                                        calculateIndividualsFitness(newPopulation, matrix);
 
-                                    population = newPopulation;
-                                    outputData += prepareCurrentPopulationData(population);
+                                        population = newPopulation;
+                                        outputData += prepareCurrentPopulationData(population);
+                                    }
+                                    System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
+                                    RaportGenerator raport = new RaportGenerator();
+                                    raport.generateRaport(buildRaportName(counter, file, populationSize, generationsCount, crossoverRate, mutationRate, amountOfChamps), outputData);
                                 }
-                                System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
-                                RaportGenerator raport = new RaportGenerator();
-                                raport.generateRaport(buildRaportName(file, populationSize, generationsCount, crossoverRate, mutationRate, amountOfChamps), outputData);
                             }
                         }
                     }
-                }
 
+                }
             }
         }
 
         System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
     }
 
-    private static String buildRaportName(String file, int populationSize, int generationsCount, double crossoverRate, double mutationRate, int amountOfChamps) {
+    private static String buildRaportName(int counter, String file, int populationSize, int generationsCount, double crossoverRate, double mutationRate, int amountOfChamps) {
         String raportName = ""
+                + directory
+                + counter
                 + raportPrefix
                 + file.split("\\.")[0]
-                + "-POP" + populationSize
-                + "-GENS" + generationsCount
-                + "-PX" + crossoverRate
-                + "-PM" + mutationRate
-                + "-CHAMPS" + amountOfChamps
-                + "-SELECTION" + selectionType
-                + "-MUTATION" + mutationType
-                + "-CROSSOVER" + crossoverType;
+                + "-POP;" + populationSize
+                + "-GENS;" + generationsCount
+                + "-PX;" + crossoverRate
+                + "-PM;" + mutationRate
+                + "-CHAMPS;" + amountOfChamps
+                + "-SELECTION;" + selectionType
+                + "-MUTATION;" + mutationType
+                + "-CROSSOVER;" + crossoverType;
         return raportName;
     }
 
@@ -100,7 +108,7 @@ public class Main {
     }
 
     private static String prepareCurrentPopulationData(Population population1) {
-        String data = population1.getGeneration() +
+        String data = (population1.getGeneration() + 1) +
                 "," + population1.getBestIndividual().getFitness() +
                 "," + population1.getWorstIndividual().getFitness() +
                 "," + population1.getAverageFitness() +
