@@ -1,3 +1,7 @@
+import enums.Crossover;
+import enums.Mutation;
+
+import javax.rmi.CORBA.Util;
 import java.util.ArrayList;
 
 public class Population {
@@ -106,6 +110,45 @@ public class Population {
     }
 
     private Individual selection(int amountOfChamps) {
+        switch (Main.selectionType) {
+            case TOURNAMENT: {
+                return tournamentSelection(amountOfChamps);
+            }
+            case ROULETTE: {
+                return rouletteSellection();
+            }
+        }
+        return null;
+    }
+
+    private Individual rouletteSellection() {
+        Double sumOfPopulationFitness = getSumOfPopulationFitness();
+        Double pointer = 0.0;
+        Double[] wheel = new Double[populationSize];
+        int i = 0;
+        for (Individual individual : population) {
+            Double chance = 1 - (individual.getFitness() / sumOfPopulationFitness);
+            pointer += chance;
+            wheel[i++] = pointer;
+        }
+        pointer = Utils.randomDouble(0, pointer);
+        i = 0;
+        while (wheel[i] <= pointer) {
+            i++;
+        }
+
+        return population.get(i);
+    }
+
+    private Double getSumOfPopulationFitness() {
+        Double sum = 0.0;
+        for (Individual i : population) {
+            sum += i.getFitness();
+        }
+        return sum;
+    }
+
+    private Individual tournamentSelection(int amountOfChamps) {
         Individual best = population.get(Utils.randomInt(0, population.size() - 1));
         for (int i = 0; i < amountOfChamps; i++) {
             Individual randomRival = population.get(Utils.randomInt(0, population.size() - 1));
@@ -113,11 +156,65 @@ public class Population {
                 best = randomRival;
             }
         }
-
         return best;
     }
 
     public void crossover(Population population, double px, int amountOfChamps) {
+        if (Main.crossoverType == Crossover.PMX) {
+            PMXCrossover(population, px, amountOfChamps);
+        } else if (Main.crossoverType == Crossover.OX) {
+            OXCrossover(population, px, amountOfChamps);
+        }
+
+    }
+
+    private void OXCrossover(Population population, double px, int amountOfChamps) {
+        while (!isPopulationFilled()) {
+            Individual parentA = population.selection(amountOfChamps);
+            Individual parentB = population.selection(amountOfChamps);
+            Individual childA = parentA.copy();
+            Individual childB = parentB.copy();
+            if (Utils.randomInt(0, 100000) <= px * 1000) {
+                childA = OX(parentA, parentB);
+                childB = OX(parentB, parentA);
+            }
+            this.population.add(childA);
+            this.population.add(childB);
+        }
+    }
+
+    private Individual OX(Individual parentA, Individual parentB) {
+        Individual child = new Individual(parentA.getCitiesIds().length);
+        int firstCut = Utils.randomInt(0, parentA.getCitiesIds().length - 2);
+        int secondCut = Utils.randomInt(firstCut + 1, parentA.getCitiesIds().length - 1);
+        int[] insertedCities = new int[secondCut - firstCut]; //length of substring
+        for (int i = 0; i < secondCut - firstCut; i++) { //write substring of first parent to the child
+            child.getCitiesIds()[firstCut + i] = parentA.getCitiesIds()[firstCut + i];
+            insertedCities[i] = parentA.getCitiesIds()[firstCut + i];
+        }
+
+        int i = 0;
+        for (int a : parentB.getCitiesIds()) {
+            if (!doesTableContainValue(a, insertedCities)) { //place cities from second parent without already insterted cities
+                while (child.getCitiesIds()[i] != 0) { //if child has a city at 'i' index - skip this position
+                    i++;
+                }
+                child.getCitiesIds()[i] = a;
+            }
+        }
+        return child;
+    }
+
+    private boolean doesTableContainValue(int value, int[] table) {
+        for (int x : table) {
+            if (x == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void PMXCrossover(Population population, double px, int amountOfChamps) {
         while (!isPopulationFilled()) {
             Individual parentA = population.selection(amountOfChamps);
             Individual parentB = population.selection(amountOfChamps);

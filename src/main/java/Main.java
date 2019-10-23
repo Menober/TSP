@@ -1,3 +1,6 @@
+import enums.Crossover;
+import enums.Mutation;
+import enums.Selection;
 import io.DataReader;
 import io.RaportGenerator;
 
@@ -10,17 +13,24 @@ public class Main {
     static String[] filesNamesTest = {"berlin11_modified.tsp"};
     static String[] filesNamesEasy = {"berlin11_modified.tsp", "berlin52.tsp"};
     static String[] filesNamesMedium = {"kroA100.tsp", "kroA150.tsp", "kroA200.tsp"};
+    static String[] kroA100 = {"kroA100.tsp"};
+    static String[] kroA150 = {"kroA150.tsp"};
+    static String[] kroA200 = {"kroA200.tsp"};
     static String[] filesNamesHard = {"fl417.tsp", "ali535.tsp", "gr666.tsp"};
-    static int[] populationSizes = {100, 500, 1000};
-    static int[] generations = {1000, 2000};
-    static double[] crossoverRates = {35.0, 70.0, 100.0}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
-    static double[] mutationRates = {3, 10, 15, 30}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
-    static int[] amountsOfChamps = {3, 5, 10};
+    static int[] populationSizes = {100};
+    static int[] generations = {500};
+    static double[] crossoverRates = {95.0}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static double[] mutationRates = {0.005}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static int[] amountsOfChamps = {5};
+    static String raportPrefix = "dev/dev-";
+    static Selection selectionType = Selection.TOURNAMENT;
+    static Crossover crossoverType = Crossover.OX;
+    static Mutation mutationType = Mutation.SWAP;
 
     public static void main(String[] args) throws IOException {
         Date startDate = new Date();
 
-        for (String file : filesNamesEasy) {
+        for (String file : filesNamesTest) {
             for (int populationSize : populationSizes) {
                 DataReader dataReader = new DataReader();
                 ArrayList<String> cities = dataReader.getCities(dataReader.readFile(file));
@@ -28,10 +38,13 @@ public class Main {
                 Double[][] matrix = new Double[dimension][dimension];
                 parseCitiesToMatrix(cities, matrix);
                 for (int generationsCount : generations) {
+                    if (generationsCount % 500 == 0) {
+                        System.out.println(generationsCount);
+                    }
                     for (double crossoverRate : crossoverRates) {
                         for (double mutationRate : mutationRates) {
                             for (int amountOfChamps : amountsOfChamps) {
-                                System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount + " Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
+                                System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount + " enums.Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
                                 String outputData = "";
 
                                 Population population = Population.generateNewRandomPopulation(populationSize, dimension);
@@ -43,16 +56,19 @@ public class Main {
                                     Population newPopulation = Population.generateNewEmptyPopulation(population.getPopulationSize(), population.getGeneration());
 
                                     newPopulation.crossover(population, crossoverRate, amountOfChamps);
-                                    newPopulation.mutation(mutationRate);
+//                                    if (i % 400 == 0) {
+//                                        newPopulation.mutation(mutationRate * 200);
+//                                    } else {
+//                                        newPopulation.mutation(mutationRate);
+//                                    }
                                     calculateIndividualsFitness(newPopulation, matrix);
 
                                     population = newPopulation;
-                                    Individual test = population.getBestIndividual();
                                     outputData += prepareCurrentPopulationData(population);
                                 }
                                 System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
                                 RaportGenerator raport = new RaportGenerator();
-                                raport.generateRaport(file.split("\\.")[0] + "-POP" + populationSize + "-GENS" + generationsCount + "-PX" + crossoverRate + "-PM" + mutationRate + "-CHAMPS" + amountOfChamps, outputData);
+                                raport.generateRaport(buildRaportName(file, populationSize, generationsCount, crossoverRate, mutationRate, amountOfChamps), outputData);
                             }
                         }
                     }
@@ -62,6 +78,21 @@ public class Main {
         }
 
         System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
+    }
+
+    private static String buildRaportName(String file, int populationSize, int generationsCount, double crossoverRate, double mutationRate, int amountOfChamps) {
+        String raportName = ""
+                + raportPrefix
+                + file.split("\\.")[0]
+                + "-POP" + populationSize
+                + "-GENS" + generationsCount
+                + "-PX" + crossoverRate
+                + "-PM" + mutationRate
+                + "-CHAMPS" + amountOfChamps
+                + "-SELECTION" + selectionType
+                + "-MUTATION" + mutationType
+                + "-CROSSOVER" + crossoverType;
+        return raportName;
     }
 
     private static int getSeconds(Date startDate, Date endDate) {

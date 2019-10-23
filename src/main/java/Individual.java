@@ -1,3 +1,5 @@
+import enums.Mutation;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,9 +78,15 @@ public class Individual {
     }
 
     public void mutate(double pm) {
-        for (int i = 0; i < citiesIds.length; i++) {
+        if (Main.mutationType == Mutation.SWAP) {
+            for (int i = 0; i < citiesIds.length; i++) {
+                if (Utils.randomInt(0, 100000) <= pm * 1000) {
+                    swapCityWithRandomCity(i);
+                }
+            }
+        } else if (Main.mutationType == Mutation.INVERSION) {
             if (Utils.randomInt(0, 100000) <= pm * 1000) {
-                swapCityWithRandomCity(i);
+                citiesIds = Utils.reverseIntTable(citiesIds);
             }
         }
     }
