@@ -86,7 +86,9 @@ public class Individual {
             }
         } else if (Main.mutationType == Mutation.INVERSION) {
             if (Utils.randomInt(0, 100000) <= pm * 1000) {
-                citiesIds = Utils.reverseIntTable(citiesIds);
+                int x = Utils.randomInt(0, citiesIds.length - 2);
+                int y = Utils.randomInt(x + 1, citiesIds.length - 1);
+                Utils.reverseIntTableFromTo(citiesIds, x, y);
             }
         }
     }

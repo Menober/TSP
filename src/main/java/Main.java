@@ -21,20 +21,20 @@ public class Main {
     static String[] gr666 = {"gr666.tsp"};
     static String[] filesNamesHard = {"fl417.tsp", "ali535.tsp", "gr666.tsp"};
     static int[] populationSizes = {100};
-    static int[] generations = {1000};
-    static double[] crossoverRates = {95.0}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
-    static double[] mutationRates = {0.005}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static int[] generations = {500};
+    static double[] crossoverRates = {10}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static double[] mutationRates = {60}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
     static int[] amountsOfChamps = {5};
-    static String directory = "measuring/";
-    static String raportPrefix = "MUT-";
+    static String directory = "zajecia/";
+    static String raportPrefix = "sw";
     static Selection selectionType = Selection.TOURNAMENT;
-    static Crossover crossoverType = Crossover.PMX;
-    static Mutation mutationType = Mutation.SWAP;
+    static Crossover crossoverType = Crossover.OX;
+    static Mutation mutationType = Mutation.INVERSION;
 
     public static void main(String[] args) throws IOException {
         Date startDate = new Date();
         for (int counter = 0; counter < 1; counter++) {
-            for (String file : kroA100) {
+            for (String file : ali535) {
                 for (int populationSize : populationSizes) {
                     DataReader dataReader = new DataReader();
                     ArrayList<String> cities = dataReader.getCities(dataReader.readFile(file));
@@ -43,12 +43,12 @@ public class Main {
                     parseCitiesToMatrix(cities, matrix);
                     for (int generationsCount : generations) {
                         if (generationsCount % 500 == 0) {
-                            System.out.println(generationsCount);
+                        //    System.out.println(generationsCount);
                         }
                         for (double crossoverRate : crossoverRates) {
                             for (double mutationRate : mutationRates) {
                                 for (int amountOfChamps : amountsOfChamps) {
-                                    System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount + " enums.Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
+                                    System.out.println("File: " + file + " Population: " + populationSize + " Generations: " + generationsCount + " Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
                                     String outputData = "";
 
                                     Population population = Population.generateNewRandomPopulation(populationSize, dimension);
@@ -61,19 +61,16 @@ public class Main {
 
                                         newPopulation.crossover(population, crossoverRate, amountOfChamps);
                                         newPopulation.mutation(mutationRate);
-//                                    if (i % 400 == 0) {
-//                                        newPopulation.mutation(mutationRate * 200);
-//                                    } else {
-//                                        newPopulation.mutation(mutationRate);
-//                                    }
+
                                         calculateIndividualsFitness(newPopulation, matrix);
 
                                         population = newPopulation;
                                         outputData += prepareCurrentPopulationData(population);
                                     }
-                                    System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
+                                   // System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
                                     RaportGenerator raport = new RaportGenerator();
                                     raport.generateRaport(buildRaportName(counter, file, populationSize, generationsCount, crossoverRate, mutationRate, amountOfChamps), outputData);
+                                    System.out.println(population.getBestIndividual().getFitness() + "," + population.getWorstIndividual().getFitness() + "," + population.getAverageFitness());
                                 }
                             }
                         }
@@ -83,13 +80,12 @@ public class Main {
             }
         }
 
-        System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
+      //  System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
     }
 
     private static String buildRaportName(int counter, String file, int populationSize, int generationsCount, double crossoverRate, double mutationRate, int amountOfChamps) {
         String raportName = ""
                 + directory
-                + counter
                 + raportPrefix
                 + file.split("\\.")[0]
                 + "-POP;" + populationSize
@@ -112,7 +108,6 @@ public class Main {
                 "," + population1.getBestIndividual().getFitness() +
                 "," + population1.getWorstIndividual().getFitness() +
                 "," + population1.getAverageFitness() +
-                "," +
                 "\n";
         return data;
     }

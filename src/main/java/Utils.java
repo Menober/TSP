@@ -21,6 +21,17 @@ public class Utils {
         return temp;
     }
 
+    public static void reverseIntTableFromTo(int[] citiesIds, int x, int y) {
+        int[] temp = new int[y - x + 1];
+        for (int i = 0; i <= y - x; i++) {
+            temp[i] = citiesIds[x + i];
+        }
+
+        for (int i = x; i <= y; i++) {
+            citiesIds[i] = temp[y - i];
+        }
+    }
+
     private boolean doesTableContainValue(int value, int[] table) {
         for (int x : table) {
             if (x == value) {

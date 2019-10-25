@@ -137,4 +137,34 @@ public class UtilsTest {
         }
         return false;
     }
+
+    @Test
+    public void inversionTest() {
+        Individual parent1 = new Individual(4);
+        parent1.setCitiesIds(new int[]{1, 2, 3, 4, 5, 6});
+        int x=0;
+        int y=0;
+        for(int i=0;i<10;i++) {
+            x = Utils.randomInt(0, parent1.getCitiesIds().length - 2);
+            y = Utils.randomInt(x + 1, parent1.getCitiesIds().length - 1);
+            System.out.println(x + "_" + y);
+        }
+        Utils.reverseIntTableFromTo(parent1.getCitiesIds(), x, y);
+        System.out.println();
+        for (int a : parent1.getCitiesIds()) {
+            System.out.print(a + ",");
+        }
+    }
+
+    private boolean areTheSame(int[] a, int[] b) {
+        if (a.length != b.length) {
+            return false;
+        }
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] != b[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
