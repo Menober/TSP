@@ -4,8 +4,10 @@ import enums.Selection;
 import io.DataReader;
 import io.RaportGenerator;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 
 public class Main {
@@ -32,9 +34,98 @@ public class Main {
     static Mutation mutationType = Mutation.INVERSION;
 
     public static void main(String[] args) throws IOException {
+        //GA();
+        tabu();
+    }
+
+    private static void tabu() throws FileNotFoundException {
+        DataReader dataReader = new DataReader();
+        ArrayList<String> cities = dataReader.getCities(dataReader.readFile(fl417[0]));
+        int dimension = cities.size();
+        Double[][] matrix = new Double[dimension][dimension];
+        parseCitiesToMatrix(cities, matrix);
+        Population population = Population.generateNewRandomPopulation(1, dimension);
+        calculateIndividualsFitness(population, matrix);
+        Individual best = population.getBestIndividual();
+
+        ArrayList<int[]> tabuList = new ArrayList<>();
+        int tabuListMaxSize = 10;
+
+        tabuList.add(best.getCitiesIds());
+
+        System.out.println("INICJALIZACJA:" + best.getFitness());
+        int i = 0;
+        while (best.getFitness() > 11862 && i != 1000) {
+            Population neighbourhood = neighbourhood(best, 1000);
+            calculateIndividualsFitness(neighbourhood, matrix);
+            Individual bestTabu = getBestTabu(neighbourhood, tabuList);
+            if (bestTabu != null & bestTabu.getFitness() < best.getFitness()) {
+                best = bestTabu;
+                if (tabuList.size() > tabuListMaxSize) {
+                    tabuList.remove(0);
+                }
+                tabuList.add(best.getCitiesIds());
+                System.out.println("ZNALEZIONO LEPSZEGO:" + best.getFitness());
+                i = 0;
+            } else {
+                i++;
+            }
+
+        }
+        best.printData();
+    }
+
+    private static Individual getBestTabu(Population neighbourhood, ArrayList<int[]> tabuList) {
+        neighbourhood.getPopulation().sort(new Comparator<Individual>() {
+            @Override
+            public int compare(Individual o1, Individual o2) {
+                return (int) (o1.getFitness() - o2.getFitness());
+            }
+        });
+        for (Individual i : neighbourhood.getPopulation()) {
+            if (!isTabu(i, tabuList)) {
+                return i;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean isTabu(Individual i, ArrayList<int[]> tabuList) {
+        for (int[] x : tabuList) {
+            if (areCitiesTheSame(i.getCitiesIds(), x))
+                return true;
+        }
+        return false;
+    }
+
+    private static boolean areCitiesTheSame(int[] a, int[] b) {
+        if (a.length != b.length) {
+            return false;
+        }
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] != b[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static Population neighbourhood(Individual best, int k) {
+        Population population = Population.generateNewEmptyPopulation(k, 0);
+        for (int i = 0; i < k; i++) {
+            Individual neighbour = best.copy();
+            neighbour.mutateOnce();
+            population.addIndividual(neighbour);
+        }
+
+        return population;
+    }
+
+    public static void GA() throws IOException {
         Date startDate = new Date();
         for (int counter = 0; counter < 1; counter++) {
-            for (String file : ali535) {
+            for (String file : filesNamesTest) {
                 for (int populationSize : populationSizes) {
                     DataReader dataReader = new DataReader();
                     ArrayList<String> cities = dataReader.getCities(dataReader.readFile(file));
@@ -43,7 +134,7 @@ public class Main {
                     parseCitiesToMatrix(cities, matrix);
                     for (int generationsCount : generations) {
                         if (generationsCount % 500 == 0) {
-                        //    System.out.println(generationsCount);
+                            //    System.out.println(generationsCount);
                         }
                         for (double crossoverRate : crossoverRates) {
                             for (double mutationRate : mutationRates) {
@@ -67,7 +158,7 @@ public class Main {
                                         population = newPopulation;
                                         outputData += prepareCurrentPopulationData(population);
                                     }
-                                   // System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
+                                    // System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
                                     RaportGenerator raport = new RaportGenerator();
                                     raport.generateRaport(buildRaportName(counter, file, populationSize, generationsCount, crossoverRate, mutationRate, amountOfChamps), outputData);
                                     System.out.println(population.getBestIndividual().getFitness() + "," + population.getWorstIndividual().getFitness() + "," + population.getAverageFitness());
@@ -80,8 +171,9 @@ public class Main {
             }
         }
 
-      //  System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
+        //  System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
     }
+
 
     private static String buildRaportName(int counter, String file, int populationSize, int generationsCount, double crossoverRate, double mutationRate, int amountOfChamps) {
         String raportName = ""

@@ -86,9 +86,7 @@ public class Individual {
             }
         } else if (Main.mutationType == Mutation.INVERSION) {
             if (Utils.randomInt(0, 100000) <= pm * 1000) {
-                int x = Utils.randomInt(0, citiesIds.length - 2);
-                int y = Utils.randomInt(x + 1, citiesIds.length - 1);
-                Utils.reverseIntTableFromTo(citiesIds, x, y);
+                reversePartOfGenome();
             }
         }
     }
@@ -101,5 +99,19 @@ public class Individual {
         int tempValue = citiesIds[randomCity];
         citiesIds[randomCity] = citiesIds[index];
         citiesIds[index] = tempValue;
+    }
+
+    public void mutateOnce() {
+        if (Main.mutationType == Mutation.SWAP) {
+            swapCityWithRandomCity(Utils.randomInt(0, citiesIds.length - 1));
+        } else if (Main.mutationType == Mutation.INVERSION) {
+            reversePartOfGenome();
+        }
+    }
+
+    private void reversePartOfGenome() {
+        int x = Utils.randomInt(0, citiesIds.length - 2);
+        int y = Utils.randomInt(x + 1, citiesIds.length - 1);
+        Utils.reverseIntTableFromTo(citiesIds, x, y);
     }
 }

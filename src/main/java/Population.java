@@ -256,4 +256,8 @@ public class Population {
             c.mutate(pm);
         }
     }
+
+    public void addIndividual(Individual individual) {
+        population.add(individual);
+    }
 }
