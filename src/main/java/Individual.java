@@ -9,6 +9,18 @@ public class Individual {
     private int[] citiesIds;
     private Double fitness;
 
+    public static Individual createIndividualFromString(String cities, String regex) {
+        String[] citiesString = cities.split(regex);
+        Individual individual = new Individual(citiesString.length);
+        int i = 0;
+        for (String city : citiesString) {
+            individual.getCitiesIds()[i] = Integer.parseInt(city);
+            i++;
+        }
+        return individual;
+    }
+
+
     public void fillWithRandomCities() {
         List<Integer> list = new ArrayList<>();
         for (int i = 0; i < citiesIds.length; i++) {
