@@ -32,6 +32,11 @@
             <version>5.3.2</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.knowm.xchart</groupId>
+            <artifactId>xchart</artifactId>
+            <version>3.5.4</version>
+        </dependency>
     </dependencies>
 
 

@@ -18,6 +18,11 @@
   <component name="InspectionProjectProfileManager">
     <profile version="1.0">
       <option name="myName" value="Project Default" />
+      <inspection_tool class="DuplicateCondition" enabled="false" level="WARNING" enabled_by_default="false">
+        <option name="ignoreSideEffectConditions" value="true" />
+      </inspection_tool>
+      <inspection_tool class="DuplicateThrows" enabled="false" level="WARNING" enabled_by_default="false" />
+      <inspection_tool class="Duplicates" enabled="false" level="WARNING" enabled_by_default="false" />
     </profile>
     <version value="1.0" />
   </component>
@@ -179,6 +184,17 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="libraryTable">
+    <library name="Maven: de.erichseifert.vectorgraphics2d:VectorGraphics2D:0.13">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/de/erichseifert/vectorgraphics2d/VectorGraphics2D/0.13/VectorGraphics2D-0.13.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/de/erichseifert/vectorgraphics2d/VectorGraphics2D/0.13/VectorGraphics2D-0.13-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/de/erichseifert/vectorgraphics2d/VectorGraphics2D/0.13/VectorGraphics2D-0.13-sources.jar!/" />
+      </SOURCES>
+    </library>
     <library name="Maven: junit:junit:4.12">
       <CLASSES>
         <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/" />
@@ -232,6 +248,17 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/org/junit/platform/junit-platform-commons/1.3.2/junit-platform-commons-1.3.2-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.knowm.xchart:xchart:3.5.4">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/knowm/xchart/xchart/3.5.4/xchart-3.5.4.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/knowm/xchart/xchart/3.5.4/xchart-3.5.4-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/knowm/xchart/xchart/3.5.4/xchart-3.5.4-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.opentest4j:opentest4j:1.1.1">
