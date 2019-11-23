@@ -15,12 +15,26 @@ public class Population {
         generation = 0;
     }
 
+    Population(Population p) {
+        this.generation = p.generation;
+        this.populationSize = p.populationSize;
+        this.population = new ArrayList<>(p.population);
+    }
+
     public static Population generateNewEmptyPopulation(int size, int generation) {
         Population population = new Population();
         population.populationSize = size;
         population.generation = generation;
         return population;
     }
+
+    public static Population generateGreedyPopulation(int size, int dimension, Double[][] matrix) {
+        Population population = new Population();
+        population.populationSize = size;
+        population.createGreedyPopulation(size, dimension, matrix);
+        return population;
+    }
+
 
     public static Population generateNewRandomPopulation(int size, int dimension) {
         Population population = new Population();
@@ -43,6 +57,14 @@ public class Population {
             newIndividual.fillWithRandomCities();
             population.add(newIndividual);
         }
+    }
+
+    void createGreedyPopulation(int size, int dimension, Double[][] matrix) {
+
+            Individual newIndividual = new Individual(dimension);
+            newIndividual.fillWithGreedy(Utils.randomInt(0,matrix.length-1), matrix);
+            population.add(newIndividual);
+
     }
 
     Individual getBestIndividual() {

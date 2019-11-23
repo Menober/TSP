@@ -14,12 +14,17 @@ public class Individual {
         Individual individual = new Individual(citiesString.length);
         int i = 0;
         for (String city : citiesString) {
-            individual.getCitiesIds()[i] = Integer.parseInt(city);
+            individual.getCitiesIds()[i] = Integer.parseInt(city)-1;
             i++;
         }
         return individual;
     }
 
+    public static Individual createNewRandomIndividual(int cityCount){
+        Individual i=new Individual(cityCount);
+        i.fillWithRandomCities();
+        return i;
+    }
 
     public void fillWithRandomCities() {
         List<Integer> list = new ArrayList<>();
@@ -125,5 +130,37 @@ public class Individual {
         int x = Utils.randomInt(0, citiesIds.length - 2);
         int y = Utils.randomInt(x + 1, citiesIds.length - 1);
         Utils.reverseIntTableFromTo(citiesIds, x, y);
+    }
+
+    public void fillWithGreedy(int startingIndex, Double[][] matrix) {
+        ArrayList<Integer> result = new ArrayList<>();
+        ArrayList<CityDistance> currCityNearestsList;
+        result.add(startingIndex);
+        for (int i = 0; i < matrix.length-1; i++) {
+            currCityNearestsList = getClosestCity(result.get(result.size() - 1),matrix);
+            int tmpItr = 0;
+            boolean added = false;
+            while (!added) {
+                if (result.contains(currCityNearestsList.get(tmpItr).index)) {
+                    tmpItr++;
+                } else {
+                    result.add(currCityNearestsList.get(tmpItr).index);
+                    added = true;
+                }
+            }
+        }
+
+        for (int i = 0; i < citiesIds.length; i++) {
+            citiesIds[i] = result.get(i);
+        }
+    }
+
+    private ArrayList<CityDistance> getClosestCity(int closestToIndex, Double[][] matrix) {
+        ArrayList<CityDistance> cities = new ArrayList<>();
+        for (int i = 0; i < matrix[closestToIndex].length; i++) {
+            cities.add(new CityDistance(i, matrix[closestToIndex][i]));
+        }
+        Collections.sort(cities);
+        return cities;
     }
 }
