@@ -30,10 +30,10 @@ public class Main {
     static String[] filesNamesHard = {"fl417.tsp", "ali535.tsp", "gr666.tsp"};
     static String[] nrw1379 = {"nrw1379.tsp"};
     static String[] pr2392 = {"pr2392.tsp"};
-    static int[] populationSizes = {100};
-    static int[] generations = {100};
-    static double[] crossoverRates = {30}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
-    static double[] mutationRates = {15}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static int[] populationSizes = {1000};
+    static int[] generations = {1000};
+    static double[] crossoverRates = {90}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
+    static double[] mutationRates = {25}; //100.0 = 100%; 50.0 = 50% 0.5 = 0.5%. Min: 0.001 Max: 100.0
     static int[] amountsOfChamps = {5};
     static String directory = "zajecia/";
     static String raportPrefix = "sw";
@@ -52,14 +52,14 @@ public class Main {
 
     static int tabuIterationsLimit = 10000;
     static int tabuNoNeighbours = 10000;
-    static int tabuNeighbourhoodSize = 30;
+    static int tabuNeighbourhoodSize = 100;
     static int tabuListMaxSize = 10;
 
-    static Double temperatureSA = 100.0;
+    static Double temperatureSA = 5000.0;
     static Double temperatureStepSA = 0.99996;
     static Double minTemp = 1.0;
     static int saNeighbourhoodSize = 5;
-    static String currentFile = gr666[0];
+    static String currentFile = fl417[0];
     static Double sred = 0.0;
 
     public static void main(String[] args) throws IOException {
@@ -70,8 +70,7 @@ public class Main {
         Double[][] matrix = new Double[dimension][dimension];
         parseCitiesToMatrix(cities, matrix);
 
-        Individual best = Individual.createIndividualFromString("1;465;464;463;462;451;450;449;448;452;453;454;456;457;458;459;460;520;461;521;522;525;526;515;524;516;523;517;518;519;493;492;491;490;494;495;496;497;498;436;500;499;502;501;156;155;158;157;159;161;162;163;186;185;184;149;183;182;171;172;173;167;139;168;169;170;174;175;176;177;178;179;180;181;187;188;190;189;193;191;192;196;194;195;207;208;217;218;219;220;221;229;228;227;225;226;216;223;224;222;212;213;211;210;209;197;198;199;200;201;202;204;205;206;214;215;230;231;233;232;234;203;165;166;508;509;506;507;164;160;504;505;503;514;513;512;511;510;527;528;529;530;536;537;538;539;548;551;554;555;557;558;559;556;552;549;553;550;547;562;563;564;566;565;574;568;567;569;570;571;572;573;575;578;576;577;579;580;581;582;583;584;585;587;588;589;590;591;586;640;648;641;642;643;644;645;646;647;639;638;657;658;659;636;637;594;593;592;595;596;597;598;600;601;609;599;608;610;611;612;635;634;633;623;632;631;630;628;629;627;626;625;624;485;483;484;482;620;486;622;621;619;618;614;616;617;615;613;604;603;605;606;607;602;561;560;546;545;544;540;541;543;542;535;534;533;532;531;473;472;471;470;474;469;466;467;468;475;476;477;478;481;480;479;2;3;4;5;6;19;20;8;7;10;9;12;11;30;31;32;33;39;40;41;36;35;34;27;25;21;22;23;24;26;28;29;53;54;55;56;57;58;62;59;60;61;63;64;65;66;67;68;69;70;71;93;665;664;662;663;661;660;654;653;655;656;652;651;650;649;666;108;109;111;110;107;106;116;115;114;113;112;119;120;121;122;123;124;125;128;129;130;131;132;133;134;135;136;84;85;86;137;138;127;126;118;117;105;104;103;102;101;100;99;98;97;95;96;94;92;91;90;72;89;88;83;87;82;81;80;79;78;77;76;75;52;74;73;51;50;45;44;38;37;42;13;43;49;48;47;46;14;15;16;17;18;235;141;140;142;143;144;145;146;239;240;241;242;238;236;237;250;248;247;246;249;254;255;253;245;252;251;244;243;147;148;150;380;259;376;372;371;258;257;256;263;262;261;260;267;266;265;264;285;303;304;305;306;307;298;297;299;300;296;295;294;293;292;291;288;289;286;290;287;268;269;270;277;278;276;279;280;281;283;282;284;333;345;344;343;342;341;340;339;338;337;275;274;352;272;271;361;362;363;365;364;273;357;358;354;353;355;356;347;346;334;329;330;331;327;326;328;322;332;390;336;335;348;349;350;351;402;401;359;360;366;367;368;370;420;418;419;375;374;373;377;378;379;381;382;383;384;385;386;387;389;388;151;152;153;154;435;488;434;433;431;432;428;427;425;426;424;421;422;423;411;410;409;407;405;369;404;403;398;399;394;397;393;392;391;442;396;395;400;445;406;408;412;414;415;416;417;429;430;487;489;455;447;413;446;444;443;441;440;316;439;438;437;311;312;313;314;315;324;325;323;321;320;317;318;319;301;302;308;309;310",";");
-        best.setFitness(calculateIndividualFitness(best, matrix));
+        Individual best;
         ArrayList<Double> randomFitnesses = new ArrayList<>();
         ArrayList<Double> greedyFitnesses = new ArrayList<>();
         ArrayList<Double> eaFitnesses = new ArrayList<>();
@@ -80,73 +79,60 @@ public class Main {
         Long[] time = {0L, 0L, 0L, 0L, 0L};
         Population population;
         Long tmp = 0L;
-        for (int i = 0; i < 1; i++) {
-            //RANDOM
+        for (int i = 0; i < 10; i++) {
+//            RANDOM
 //            tmp = System.currentTimeMillis();
-//            population = Population.generateNewRandomPopulation(populationSizes[0]*1000 , dimension);
+//            population = Population.generateNewRandomPopulation(populationSizes[0] * 100, dimension);
 //            calculateIndividualsFitness(population, matrix);
 //            best = population.getBestIndividual();
 //            randomFitnesses.add(best.getFitness());
 //            time[0] += System.currentTimeMillis() - tmp;
-//            System.out.println("RANDOM| BEST:" + best.getFitness());
 
             //GREEDY
 //            tmp = System.currentTimeMillis();
-//            population = Population.generateGreedyPopulation(populationSizes[0], dimension, matrix);
+//            population = Population.generateGreedyPopulation(populationSizes[0] * 100, dimension, matrix);
 //            calculateIndividualsFitness(population, matrix);
 //            best = population.getBestIndividual();
 //            greedyFitnesses.add(best.getFitness());
 //            time[1] += System.currentTimeMillis() - tmp;
-//            System.out.println("GREEDY| BEST:" + best.getFitness());
 
             //EA
             tmp = System.currentTimeMillis();
 //            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
-            population = GAconf(matrix, new Configuration[]{new Configuration(100, 100, 75, 30, 5)}).get(0);
+//            population = GAconf(matrix, new Configuration[]{new Configuration(100, 100, 80, 30, 5)}).get(0);
+            population = GA();
+//            GAs();
             best = population.getBestIndividual();
             eaFitnesses.add(best.getFitness());
             time[2] += System.currentTimeMillis() - tmp;
-            System.out.println("EA| BEST:" + best.getFitness());
 
-//            //SA
-//            tmp = System.currentTimeMillis();
-//            Individual bestbest = sa(Population.generateNewRandomPopulation(populationSizes[0], dimension), matrix);
-////            System.out.println("SA| BEST:" + bestbest.getFitness());
-//            saFitnesses.add(bestbest.getFitness());
-//            time[3] += System.currentTimeMillis() - tmp;
+            //SA
+            tmp = System.currentTimeMillis();
+            Individual bestbest = sa(Population.generateNewRandomPopulation(populationSizes[0], dimension), matrix);
+//            System.out.println("SA| BEST:" + bestbest.getFitness());
+            saFitnesses.add(bestbest.getFitness());
+            time[3] += System.currentTimeMillis() - tmp;
 
-//            //TABU
-//            tmp = System.currentTimeMillis();
-//            best = tabu(Population.generateNewRandomPopulation(populationSizes[0], dimension), matrix);
-//            tabuFitnesses.add(best.getFitness());
-//            time[4] += System.currentTimeMillis() - tmp;
-//            System.out.println("TABU| BEST:" + best.getFitness());
+            //TABU
+            tmp = System.currentTimeMillis();
+            best = tabu(Population.generateNewRandomPopulation(populationSizes[0], dimension), matrix);
+            tabuFitnesses.add(best.getFitness());
+            time[4] += System.currentTimeMillis() - tmp;
         }
 
-//        System.out.println("RAND | GREED | EA | SA | TS");
-//        for (Long l : time) {
-//            System.out.print(l + " | ");
-//        }
-//        System.out.println();
-//        for (Double d : randomFitnesses) {
-//            System.out.print(d + ";");
-//        }
-//        System.out.println();
-//        for (Double d : greedyFitnesses) {
-//            System.out.println(d);
-//        }
-//        System.out.println();
-//        for (Double d : eaFitnesses) {
-//            System.out.print(d + ";");
-//        }
-//        System.out.println();
-//        for (Double d : saFitnesses) {
-//            System.out.print(d + ";");
-//        }
-//        System.out.println();
-//        for (Double d : tabuFitnesses) {
-//            System.out.print(d + ";");
-//        }
+
+        for (Long l : time) {
+            System.out.print(l + ";");
+        }
+        System.out.println();
+        System.out.println("Random;Greedy;EA;SA;Tabu");
+        for (int i = 0; i < 10; i++) {
+            System.out.print(eaFitnesses.get(i) + ";");
+            System.out.print(tabuFitnesses.get(i) + ";");
+            System.out.print(saFitnesses.get(i));
+            System.out.println();
+//            System.out.println(randomFitnesses.get(i) + ";" + greedyFitnesses.get(i) + ";" + eaFitnesses.get(i) + ";" + saFitnesses.get(i) + ";" + tabuFitnesses.get(i));
+        }
 
 //
 //        String x="437804.58147198457;433505.7469293433;440755.2590202786;434326.237405836;433534.09232452506;436582.0493542268;434268.8426996727;440535.20397386496;433025.53507728945;439399.07637163287;";
@@ -161,11 +147,11 @@ public class Main {
 //        tabuFitnesses=parser(x);
 
 
-//        System.out.println(getDeviation(randomFitnesses));
-//        System.out.println(getDeviation(greedyFitnesses));
-//        System.out.println(getDeviation(eaFitnesses));
-//        System.out.println(getDeviation(saFitnesses));
-//        System.out.println(getDeviation(tabuFitnesses));
+        System.out.println(getDeviation(randomFitnesses));
+        System.out.println(getDeviation(greedyFitnesses));
+        System.out.println(getDeviation(eaFitnesses));
+        System.out.println(getDeviation(saFitnesses));
+        System.out.println(getDeviation(tabuFitnesses));
 
     }
 
@@ -227,9 +213,10 @@ public class Main {
 
         // System.out.println(best.getFitness());
         int time = 1;
+        int counter = 0;
         Double temp = temperatureSA;
         Individual bestSA = best;
-        while (temp > minTemp) {
+        while (temp > minTemp && counter++ < generations[0] * 1000) {
             Population neighbourhood = neighbourhood(best, saNeighbourhoodSize);
             calculateIndividualsFitness(neighbourhood, matrix);
             bestSA = getBestSA(neighbourhood);
@@ -426,6 +413,106 @@ public class Main {
         //  System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
     }
 
+    public static Population GA() throws IOException {
+        Date startDate = new Date();
+        for (int counter = 0; counter < 1; counter++) {
+            for (int populationSize : populationSizes) {
+                DataReader dataReader = new DataReader();
+                ArrayList<String> cities = dataReader.getCities(dataReader.readFile(currentFile));
+                int dimension = cities.size();
+                Double[][] matrix = new Double[dimension][dimension];
+                parseCitiesToMatrix(cities, matrix);
+                for (int generationsCount : generations) {
+                    generationsCount/=3;
+                    for (double crossoverRate : crossoverRates) {
+                        for (double mutationRate : mutationRates) {
+                            for (int amountOfChamps : amountsOfChamps) {
+//                                System.out.println("File: " + currentFile + " Population: " + populationSize + " Generations: " + generationsCount + " Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
+                                String outputData = "";
+
+                                Population population = Population.generateNewRandomPopulation(populationSize, dimension);
+                                calculateIndividualsFitness(population, matrix);
+
+                                outputData += prepareCurrentPopulationData(population);
+                                for (int i = 0; i < generationsCount; i++) {
+                                    population.bumpGenerationNumber();
+                                    Population newPopulation = Population.generateNewEmptyPopulation(population.getPopulationSize(), population.getGeneration());
+
+                                    newPopulation.crossover(population, crossoverRate, amountOfChamps);
+                                    newPopulation.mutation(mutationRate);
+
+                                    calculateIndividualsFitness(newPopulation, matrix);
+
+                                    population = newPopulation;
+                                    outputData += prepareCurrentPopulationData(population);
+                                }
+                                // System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
+//                                    RaportGenerator raport = new RaportGenerator();
+//                                    raport.generateRaport(buildRaportName(counter, file, populationSize, generationsCount, crossoverRate, mutationRate, amountOfChamps), outputData);
+//                                System.out.println(population.getBestIndividual().getFitness() + "," + population.getWorstIndividual().getFitness() + "," + population.getAverageFitness());
+                                //TODO TO DELETE
+                                return population;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+        return new Population();
+        //  System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
+    }
+
+    public static void GAs() throws IOException {
+        Date startDate = new Date();
+        for (int counter = 0; counter < 1; counter++) {
+            for (int populationSize : populationSizes) {
+                DataReader dataReader = new DataReader();
+                ArrayList<String> cities = dataReader.getCities(dataReader.readFile(currentFile));
+                int dimension = cities.size();
+                Double[][] matrix = new Double[dimension][dimension];
+                parseCitiesToMatrix(cities, matrix);
+                for (int generationsCount : generations) {
+                    for (double crossoverRate : crossoverRates) {
+                        for (double mutationRate : mutationRates) {
+                            for (int amountOfChamps : amountsOfChamps) {
+                                System.out.println("File: " + currentFile + " Population: " + populationSize + " Generations: " + generationsCount + " Crossover rate: " + crossoverRate + " Mutation rate: " + mutationRate + " Amount of champs: " + amountOfChamps);
+                                String outputData = "";
+
+                                Population population = Population.generateNewRandomPopulation(populationSize, dimension);
+                                calculateIndividualsFitness(population, matrix);
+
+                                outputData += prepareCurrentPopulationData(population);
+                                for (int i = 0; i < generationsCount; i++) {
+                                    population.bumpGenerationNumber();
+                                    Population newPopulation = Population.generateNewEmptyPopulation(population.getPopulationSize(), population.getGeneration());
+
+                                    newPopulation.crossover(population, crossoverRate, amountOfChamps);
+                                    newPopulation.mutation(mutationRate);
+
+                                    calculateIndividualsFitness(newPopulation, matrix);
+
+                                    population = newPopulation;
+                                    outputData += prepareCurrentPopulationData(population);
+                                }
+                                // System.out.println("Raport time: " + getSeconds(startDate, new Date()) + " [s]");
+//                                    RaportGenerator raport = new RaportGenerator();
+//                                    raport.generateRaport(buildRaportName(counter, file, populationSize, generationsCount, crossoverRate, mutationRate, amountOfChamps), outputData);
+                                System.out.println(population.getBestIndividual().getFitness() + "," + population.getWorstIndividual().getFitness() + "," + population.getAverageFitness());
+                                //TODO TO DELETE
+//                                return population;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+//        return new Population();
+        //  System.out.println("Time: " + getSeconds(startDate, new Date()) + " [s]");
+    }
 
     private static String buildRaportName(int counter, String file, int populationSize, int generationsCount, double crossoverRate, double mutationRate, int amountOfChamps) {
         String raportName = ""
@@ -493,14 +580,12 @@ public class Main {
     }
 
     private static Double calculateDistance(ArrayList<String> berlin11, int i, int j) {
-        Double x1 = Double.valueOf(berlin11.get(i).split("\\s+")[1]);
-        Double x2 = Double.valueOf(berlin11.get(j).split("\\s+")[1]);
-        Double y1 = Double.valueOf(berlin11.get(i).split("\\s+")[2]);
-        Double y2 = Double.valueOf(berlin11.get(j).split("\\s+")[2]);
+        Double x1 = Double.valueOf(berlin11.get(i).split("\\s+")[1]) + 200;
+        Double x2 = Double.valueOf(berlin11.get(j).split("\\s+")[1]) + 200;
+        Double y1 = Double.valueOf(berlin11.get(i).split("\\s+")[2]) + 200;
+        Double y2 = Double.valueOf(berlin11.get(j).split("\\s+")[2]) + 200;
 
-        Double distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-
-        return distance;
+        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
     private static void printMatrix(Double[][] matrix) {
