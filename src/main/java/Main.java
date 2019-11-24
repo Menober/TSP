@@ -10,6 +10,7 @@ import org.knowm.xchart.style.Styler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -69,20 +70,46 @@ public class Main {
         Double[][] matrix = new Double[dimension][dimension];
         parseCitiesToMatrix(cities, matrix);
 
-        Long[] time = {0L};
+        Long[] time = {0L, 0L, 0L};
         Long tmp = 0L;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
 //
             //EA
             tmp = System.currentTimeMillis();
 //            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
-            Configuration one = new Configuration(1000, 300, 70, 33, 10);
-            Configuration two = new Configuration(1000, 300, 30, 0.31, 10);
-            Population[] pop = hybryda(new Configuration[]{one, two}, matrix,150,200);
+            Configuration one = new Configuration(1000, 10000, 70, 33, 10);
+            Configuration two = new Configuration(1000, 10000, 30, 0.31, 10);
+            Population[] pop = hybryda(new Configuration[]{one, two}, matrix, 250, 200);
             time[0] += System.currentTimeMillis() - tmp;
             clearChartData();
+            System.out.println("Best1:" + pop[0].getBestIndividual());
+            System.out.println("Best2:" + pop[1].getBestIndividual());
+
+            tmp = System.currentTimeMillis();
+//            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
+            one = new Configuration(1000, 10000, 70, 33, 10);
+            two = new Configuration(1000, 10000, 30, 0.31, 10);
+            pop = hybryda(new Configuration[]{one, two}, matrix, 100, 100);
+            time[1] += System.currentTimeMillis() - tmp;
+            clearChartData();
+            System.out.println("Best1:" + pop[0].getBestIndividual());
+            System.out.println("Best2:" + pop[1].getBestIndividual());
+
+
+            //EA
+            tmp = System.currentTimeMillis();
+//            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
+            one = new Configuration(1000, 10000, 70, 33, 10);
+            two = new Configuration(1000, 10000, 30, 0.31, 10);
+            pop = hybryda(new Configuration[]{one, two}, matrix, 10000, 0);
+            time[2] += System.currentTimeMillis() - tmp;
+            clearChartData();
+            System.out.println("Best1:" + pop[0].getBestIndividual());
+            System.out.println("Best2:" + pop[1].getBestIndividual());
         }
-        System.out.println(time[0]);
+        System.out.println("Time1:" + time[0]);
+        System.out.println("Time2:" + time[1]);
+        System.out.println("Time2:" + time[2]);
     }
 
     private static Population[] hybryda(Configuration[] configurations, Double[][] matrix, int wymianaCo, int liczbaWymienianych) {
@@ -91,10 +118,12 @@ public class Main {
 
         Population pop1 = Population.generateNewRandomPopulation(con1.populationSize, matrix.length);
         Population pop2 = Population.generateNewRandomPopulation(con2.populationSize, matrix.length);
-        calculateIndividualsFitness(pop1,matrix);
-        calculateIndividualsFitness(pop2,matrix);
+        calculateIndividualsFitness(pop1, matrix);
+        calculateIndividualsFitness(pop2, matrix);
         int j = 0;
+
         for (int i = 0; i < con1.generations; i++) {
+//        for (int i = 0; LocalTime.now().getHour() < 20; i++) {
             setHybridParameters(1);
             pop1.bumpGenerationNumber();
             Population newPopulation1 = Population.generateNewEmptyPopulation(con1.populationSize, pop1.getGeneration());
@@ -125,13 +154,9 @@ public class Main {
             xData2.add(i);
             yData2.add(pop2.getBestIndividual().getFitness());
         }
-        xData.add(xData.size()+1);
-        yData.add(11000.0);
-        xData2.add(xData2.size()+1);
-        yData2.add(11000.0);
-        drawChart("Exchange every:"+wymianaCo+"| Travelers:"+liczbaWymienianych);
+        drawChart("Exchange every:" + wymianaCo + "| Travelers:" + liczbaWymienianych);
 
-        return new Population[]{pop1,pop2};
+        return new Population[]{pop1, pop2};
     }
 
     private static void exchange(Population pop1, Population pop2, int liczbaWymienianych) {

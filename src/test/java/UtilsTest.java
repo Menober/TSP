@@ -3,16 +3,19 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 public class UtilsTest {
 
     @Test
-    public void fd() {
-        int[] a = new int[5];
-        int i = 0;
-        Arrays.stream(a).forEach(x->x=1);
-        Arrays.stream(a).forEach(System.out::println);
+    public void fd() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        LocalTime myObj = LocalTime.now();
+        myObj.getHour();
+        System.out.println(myObj);
+
     }
 
     @Test
