@@ -105,6 +105,9 @@ public class Population {
         this.population = population;
     }
 
+    public void setGeneration(int generation) {
+        this.generation = generation;
+    }
 
     void printIndividualsFitness() {
         for (Individual c : population) {
@@ -129,6 +132,9 @@ public class Population {
 
     public int getPopulationSize() {
         return populationSize;
+    }
+    public int getPopulationActualSize(){
+        return population.size();
     }
 
     private Individual selection(int amountOfChamps) {

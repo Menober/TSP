@@ -2,7 +2,6 @@ import enums.Crossover;
 import enums.Mutation;
 import enums.Selection;
 import io.DataReader;
-import io.RaportGenerator;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
@@ -70,90 +69,100 @@ public class Main {
         Double[][] matrix = new Double[dimension][dimension];
         parseCitiesToMatrix(cities, matrix);
 
-        Individual best;
-        ArrayList<Double> randomFitnesses = new ArrayList<>();
-        ArrayList<Double> greedyFitnesses = new ArrayList<>();
-        ArrayList<Double> eaFitnesses = new ArrayList<>();
-        ArrayList<Double> saFitnesses = new ArrayList<>();
-        ArrayList<Double> tabuFitnesses = new ArrayList<>();
-        Long[] time = {0L, 0L, 0L, 0L, 0L};
-        Population population;
+        Long[] time = {0L};
         Long tmp = 0L;
         for (int i = 0; i < 10; i++) {
-//            RANDOM
-//            tmp = System.currentTimeMillis();
-//            population = Population.generateNewRandomPopulation(populationSizes[0] * 100, dimension);
-//            calculateIndividualsFitness(population, matrix);
-//            best = population.getBestIndividual();
-//            randomFitnesses.add(best.getFitness());
-//            time[0] += System.currentTimeMillis() - tmp;
-
-            //GREEDY
-//            tmp = System.currentTimeMillis();
-//            population = Population.generateGreedyPopulation(populationSizes[0] * 100, dimension, matrix);
-//            calculateIndividualsFitness(population, matrix);
-//            best = population.getBestIndividual();
-//            greedyFitnesses.add(best.getFitness());
-//            time[1] += System.currentTimeMillis() - tmp;
-
+//
             //EA
             tmp = System.currentTimeMillis();
 //            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
-//            population = GAconf(matrix, new Configuration[]{new Configuration(100, 100, 80, 30, 5)}).get(0);
-            population = GA();
-//            GAs();
-            best = population.getBestIndividual();
-            eaFitnesses.add(best.getFitness());
-            time[2] += System.currentTimeMillis() - tmp;
-
-            //SA
-            tmp = System.currentTimeMillis();
-            Individual bestbest = sa(Population.generateNewRandomPopulation(populationSizes[0], dimension), matrix);
-//            System.out.println("SA| BEST:" + bestbest.getFitness());
-            saFitnesses.add(bestbest.getFitness());
-            time[3] += System.currentTimeMillis() - tmp;
-
-            //TABU
-            tmp = System.currentTimeMillis();
-            best = tabu(Population.generateNewRandomPopulation(populationSizes[0], dimension), matrix);
-            tabuFitnesses.add(best.getFitness());
-            time[4] += System.currentTimeMillis() - tmp;
+            Configuration one = new Configuration(1000, 300, 70, 33, 10);
+            Configuration two = new Configuration(1000, 300, 30, 0.31, 10);
+            Population[] pop = hybryda(new Configuration[]{one, two}, matrix,150,200);
+            time[0] += System.currentTimeMillis() - tmp;
+            clearChartData();
         }
+        System.out.println(time[0]);
+    }
 
+    private static Population[] hybryda(Configuration[] configurations, Double[][] matrix, int wymianaCo, int liczbaWymienianych) {
+        Configuration con1 = configurations[0];
+        Configuration con2 = configurations[1];
 
-        for (Long l : time) {
-            System.out.print(l + ";");
+        Population pop1 = Population.generateNewRandomPopulation(con1.populationSize, matrix.length);
+        Population pop2 = Population.generateNewRandomPopulation(con2.populationSize, matrix.length);
+        calculateIndividualsFitness(pop1,matrix);
+        calculateIndividualsFitness(pop2,matrix);
+        int j = 0;
+        for (int i = 0; i < con1.generations; i++) {
+            setHybridParameters(1);
+            pop1.bumpGenerationNumber();
+            Population newPopulation1 = Population.generateNewEmptyPopulation(con1.populationSize, pop1.getGeneration());
+            newPopulation1.crossover(pop1, con1.crossover, con1.amount);
+            newPopulation1.mutation(con1.mutation);
+            calculateIndividualsFitness(newPopulation1, matrix);
+            pop1 = newPopulation1;
+
+            setHybridParameters(2);
+            pop2.bumpGenerationNumber();
+            Population newPopulation2 = Population.generateNewEmptyPopulation(con2.populationSize, pop2.getGeneration());
+            newPopulation2.crossover(pop2, con2.crossover, con2.amount);
+            newPopulation2.mutation(con2.mutation);
+            calculateIndividualsFitness(newPopulation2, matrix);
+            pop2 = newPopulation2;
+
+            j++;
+            if (j >= wymianaCo) {
+                exchange(pop1, pop2, liczbaWymienianych);
+                xData3.add(i);
+                yData3.add(pop1.getBestIndividual().getFitness());
+                xData3.add(i);
+                yData3.add(pop2.getBestIndividual().getFitness());
+                j = 0;
+            }
+            xData.add(i);
+            yData.add(pop1.getBestIndividual().getFitness());
+            xData2.add(i);
+            yData2.add(pop2.getBestIndividual().getFitness());
         }
-        System.out.println();
-        System.out.println("Random;Greedy;EA;SA;Tabu");
-        for (int i = 0; i < 10; i++) {
-            System.out.print(eaFitnesses.get(i) + ";");
-            System.out.print(tabuFitnesses.get(i) + ";");
-            System.out.print(saFitnesses.get(i));
-            System.out.println();
-//            System.out.println(randomFitnesses.get(i) + ";" + greedyFitnesses.get(i) + ";" + eaFitnesses.get(i) + ";" + saFitnesses.get(i) + ";" + tabuFitnesses.get(i));
+        xData.add(xData.size()+1);
+        yData.add(11000.0);
+        xData2.add(xData2.size()+1);
+        yData2.add(11000.0);
+        drawChart("Exchange every:"+wymianaCo+"| Travelers:"+liczbaWymienianych);
+
+        return new Population[]{pop1,pop2};
+    }
+
+    private static void exchange(Population pop1, Population pop2, int liczbaWymienianych) {
+        ArrayList<Individual> travelers1 = new ArrayList<>();
+        ArrayList<Individual> travelers2 = new ArrayList<>();
+        for (int i = 0; i++ < liczbaWymienianych; ) {
+            Individual traveler1 = pop1.getPopulation().get(Utils.randomInt(0, pop1.getPopulationActualSize() - 1));
+//            Individual traveler1 = pop1.getPopulation().get(0);
+            travelers1.add(traveler1);
+            pop1.getPopulation().remove(traveler1);
+
+            Individual traveler2 = pop2.getPopulation().get(Utils.randomInt(0, pop2.getPopulationActualSize() - 1));
+//            Individual traveler2 = pop2.getPopulation().get(0);
+            travelers2.add(traveler2);
+            pop2.getPopulation().remove(traveler2);
         }
+        travelers1.forEach(pop2::addIndividual);
+        travelers2.forEach(pop1::addIndividual);
+    }
 
-//
-//        String x="437804.58147198457;433505.7469293433;440755.2590202786;434326.237405836;433534.09232452506;436582.0493542268;434268.8426996727;440535.20397386496;433025.53507728945;439399.07637163287;";
-//        randomFitnesses=parser(x);
-//        x="13802.375026246133;13802.375026246133;13802.375026246133;13802.375026246133;13802.375026246133;13802.375026246133;13802.375026246133;13802.375026246133;13802.375026246133;13802.375026246133;";
-////        greedyFitnesses=parser(x);
-//        x="61592.4347944083;60759.657431719665;66083.51373046516;62141.72283399696;67091.40590717674;62446.95350682957;68849.89159662377;63787.78658100518;64133.97007618776;64391.81635050889;";
-//        eaFitnesses=parser(x);
-//        x="12495.794838318698;12725.894878159888;13036.32589133382;13034.077019036486;12662.322479222597;13015.213599608758;12884.348735978809;12605.119743200885;12757.125286138975;13312.770107069584;";
-//        saFitnesses=parser(x);
-//        x="19509.23266393756;20684.37625537842;20438.807088928337;20153.51753484788;18973.358974925533;19077.726416024216;19061.766421800483;18754.303573165893;19034.9514135695;21416.08872096999;";
-//        tabuFitnesses=parser(x);
-
-
-        System.out.println(getDeviation(randomFitnesses));
-        System.out.println(getDeviation(greedyFitnesses));
-        System.out.println(getDeviation(eaFitnesses));
-        System.out.println(getDeviation(saFitnesses));
-        System.out.println(getDeviation(tabuFitnesses));
+    private static void setHybridParameters(int i) {
+        if (i == 1) {
+            crossoverType = Crossover.OX;
+            mutationType = Mutation.INVERSION;
+        } else {
+            crossoverType = Crossover.PMX;
+            mutationType = Mutation.SWAP;
+        }
 
     }
+
 
     public static ArrayList<Double> parser(String text) {
         ArrayList<Double> n = new ArrayList<>();
@@ -423,7 +432,7 @@ public class Main {
                 Double[][] matrix = new Double[dimension][dimension];
                 parseCitiesToMatrix(cities, matrix);
                 for (int generationsCount : generations) {
-                    generationsCount/=3;
+                    generationsCount /= 3;
                     for (double crossoverRate : crossoverRates) {
                         for (double mutationRate : mutationRates) {
                             for (int amountOfChamps : amountsOfChamps) {

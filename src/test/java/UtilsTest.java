@@ -8,6 +8,14 @@ import java.util.*;
 public class UtilsTest {
 
     @Test
+    public void fd() {
+        int[] a = new int[5];
+        int i = 0;
+        Arrays.stream(a).forEach(x->x=1);
+        Arrays.stream(a).forEach(System.out::println);
+    }
+
+    @Test
     public void testCreate() {
         for (int i = 0; i < 100; i++) {
             int x = Utils.randomInt(0, 10);
