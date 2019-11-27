@@ -59,7 +59,7 @@ public class Main {
     static Double temperatureStepSA = 0.99996;
     static Double minTemp = 1.0;
     static int saNeighbourhoodSize = 5;
-    static String currentFile = fl417[0];
+    static String currentFile = nrw1379[0];
     static Double sred = 0.0;
 
     public static void main(String[] args) throws IOException {
@@ -77,35 +77,23 @@ public class Main {
             //EA
             tmp = System.currentTimeMillis();
 //            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
-            Configuration one = new Configuration(1000, 10000, 70, 33, 10);
-            Configuration two = new Configuration(1000, 10000, 30, 0.31, 10);
-            Population[] pop = hybryda(new Configuration[]{one, two}, matrix, 250, 200);
+            Configuration one = new Configuration(200, 10000, 70, 33, 5);
+            Configuration two = new Configuration(200, 10000, 30, 0.15, 5);
+            Population[] pop = hybryda(new Configuration[]{one, two}, matrix, 200, 50);
             time[0] += System.currentTimeMillis() - tmp;
             clearChartData();
-            System.out.println("Best1:" + pop[0].getBestIndividual());
-            System.out.println("Best2:" + pop[1].getBestIndividual());
-
-            tmp = System.currentTimeMillis();
-//            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
-            one = new Configuration(1000, 10000, 70, 33, 10);
-            two = new Configuration(1000, 10000, 30, 0.31, 10);
-            pop = hybryda(new Configuration[]{one, two}, matrix, 100, 100);
-            time[1] += System.currentTimeMillis() - tmp;
-            clearChartData();
-            System.out.println("Best1:" + pop[0].getBestIndividual());
-            System.out.println("Best2:" + pop[1].getBestIndividual());
-
-
+            System.out.println("Best1:" + pop[0].getBestIndividual().getFitness());
+            System.out.println("Best2:" + pop[1].getBestIndividual().getFitness());
             //EA
             tmp = System.currentTimeMillis();
 //            population = GAconf(matrix, new Configuration[]{new Configuration(populationSizes[0]*10, generations[0], crossoverRates[0], mutationRates[0], amountsOfChamps[0])}).get(0);
-            one = new Configuration(1000, 10000, 70, 33, 10);
-            two = new Configuration(1000, 10000, 30, 0.31, 10);
+            one = new Configuration(200, 10000, 70, 33, 5);
+            two = new Configuration(200, 10000, 30, 0.15, 5);
             pop = hybryda(new Configuration[]{one, two}, matrix, 10000, 0);
             time[2] += System.currentTimeMillis() - tmp;
             clearChartData();
-            System.out.println("Best1:" + pop[0].getBestIndividual());
-            System.out.println("Best2:" + pop[1].getBestIndividual());
+            System.out.println("Best1:" + pop[0].getBestIndividual().getFitness());
+            System.out.println("Best2:" + pop[1].getBestIndividual().getFitness());
         }
         System.out.println("Time1:" + time[0]);
         System.out.println("Time2:" + time[1]);
